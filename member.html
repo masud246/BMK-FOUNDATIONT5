@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>সদস্য তালিকা</title>
+  <link rel="stylesheet" href="member.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali&display=swap" rel="stylesheet">
+</head>
+<body>
+  <section class="members-section">
+    <h2>আমাদের সদস্য তালিকা</h2>
+
+    <div class="controls">
+      <select id="filterType">
+        <option value="all">সব সদস্য</option>
+        <option value="core">মূল সদস্য</option>
+        <option value="active">সক্রিয় সদস্য</option>
+        <option value="volunteer">স্বেচ্ছাসেবক</option>
+      </select>
+
+      <select id="sortBy">
+        <option value="newest">নতুন সদস্য</option>
+        <option value="name">নাম অনুযায়ী</option>
+      </select>
+    </div>
+
+    <div id="membersGrid" class="members-grid"></div>
+<div class="pagination-container">
+  <button class="page-btn" onclick="prevPage()">« পূর্ববর্তী</button>
+  <span class="page-indicator">পৃষ্ঠা <span id="currentPage">1</span></span>
+  <button class="page-btn" onclick="nextPage()">পরবর্তী »</button>
+</div>
+  </section>
+
+  <!-- Popup Modal -->
+  <div id="memberModal" class="modal hidden">
+    <div class="modal-content" id="modalContent"></div>
+  </div>
+  <script src="member.js"></script>
+</body>
+</html>

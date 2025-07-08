@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <title>দাতাদের তালিকা</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Noto Sans Bengali', sans-serif;
+      background: linear-gradient(135deg, #1d2b64, #f8cdda);
+      overflow: hidden;
+    }
+
+    .container {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(15px);
+    }
+
+    h2 {
+      color: #fff;
+      margin-bottom: 20px;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    }
+
+    .actions {
+      margin-bottom: 20px;
+    }
+
+    .actions button {
+      margin: 5px;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 8px;
+      background: #ffffff44;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      backdrop-filter: blur(5px);
+      transition: 0.3s;
+    }
+
+    .actions button:hover {
+      background: #ffffff66;
+    }
+
+    table {
+      width: 100%;
+      max-width: 1000px;
+      border-collapse: collapse;
+      background: rgba(255,255,255,0.1);
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      border-radius: 10px;
+      overflow: hidden;
+      color: #fff;
+    }
+
+    th, td {
+      padding: 14px;
+      border: 1px solid rgba(255,255,255,0.2);
+      text-align: center;
+    }
+
+    th {
+      background: rgba(255,255,255,0.2);
+    }
+
+    tbody tr:hover {
+      background: rgba(255,255,255,0.08);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 15px;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    @media (max-width: 768px) {
+      th, td { font-size: 12px; padding: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>দাতাদের তালিকা</h2>
+
+    <div class="actions">
+      <button onclick="downloadCSV()">⬇️ ডাউনলোড CSV</button>
+      <button onclick="window.print()">🖨️ প্রিন্ট</button>
+      <button onclick="exportPDF()">📄 PDF এক্সপোর্ট</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>নাম</th>
+          <th>ফোন</th>
+          <th>ইমেইল</th>
+          <th>পরিমাণ</th>
+          <th>ট্রানজেকশন আইডি</th>
+        </tr>
+      </thead>
+      <tbody id="donorList">
+        <tr><td class="loading" colspan="5">🔄 তথ্য লোড হচ্ছে...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    let donors = [];
+
+    fetch("https://script.google.com/macros/s/AKfycbw9DRPWDBKbG3-T7PiKYMfthVg17Ahxdv_z9lLbG0bVIAxbZLfmY0WdKKekMQSv9eO-/exec")
+      .then(res => res.json())
+      .then(data => {
+        donors = data;
+        const tbody = document.getElementById("donorList");
+        tbody.innerHTML = "";
+
+        if (donors.length === 0) {
+          tbody.innerHTML = `<tr><td class="loading" colspan="5">❌ কোনো যাচাইকৃত দাতা পাওয়া যায়নি</td></tr>`;
+        } else {
+          donors.forEach(donor => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+              <td>${donor.name}</td>
+              <td>${donor.phone}</td>
+              <td>${donor.email}</td>
+              <td>${donor.amount} ৳</td>
+              <td>${donor.trxid}</td>
+            `;
+            tbody.appendChild(row);
+          });
+        }
+      })
+      .catch(error => {
+        document.getElementById("donorList").innerHTML = `<tr><td class="loading" colspan="5">❌ ডাটা লোড করতে ব্যর্থ হয়েছে</td></tr>`;
+        console.error("Error loading donor data:", error);
+      });
+
+    function downloadCSV() {
+      let csv = "নাম,ফোন,ইমেইল,পরিমাণ,ট্রানজেকশন আইডি\n";
+      donors.forEach(d => {
+        csv += `${d.name},${d.phone},${d.email},${d.amount},${d.trxid}\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "donors.csv";
+      link.click();
+    }
+
+    function exportPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'landscape' });
+
+      doc.setFont("Noto Sans Bengali", "normal");
+      doc.setFontSize(14);
+      doc.text("দাতাদের তালিকা", 140, 20, null, null, "center");
+
+      const rows = donors.map(d => [d.name, d.phone, d.email, d.amount + " ৳", d.trxid]);
+      doc.autoTable({
+        head: [["নাম", "ফোন", "ইমেইল", "পরিমাণ", "ট্রানজেকশন আইডি"]],
+        body: rows,
+        startY: 30,
+        styles: { font: "helvetica", fontSize: 10 }
+      });
+
+      doc.save("donors_list.pdf");
+    }
+  </script>
+
+  <!-- jsPDF AutoTable -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+</body>
+</html>

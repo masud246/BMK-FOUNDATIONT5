@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <title>সদস্য রেজিস্ট্রেশন</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="registration.css"/>
+</head>
+<body>
+  <div class="form-container">
+    <h2>সদস্য রেজিস্ট্রেশন</h2>
+    <form id="registrationForm">
+      <input type="text" name="name" placeholder="আপনার নাম" required />
+      <input type="email" name="email" placeholder="আপনার ইমেইল" required />
+      <input type="tel" name="phone" placeholder="ফোন নাম্বার" required />
+      <input type="file" accept="image/*" id="photoInput" required />
+      <button type="submit" id="submitBtn">রেজিস্টার করুন</button>
+    </form>
+    <div class="msg" id="responseMsg"></div>
+  </div>
+<script src="registration.js"></script>
+</body>
+</html>
